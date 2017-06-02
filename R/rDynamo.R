@@ -32,9 +32,9 @@ linprog <- function(inputMatrix) {
   dir <- rep('<=', num.encodings)
   rhs <- rep(1, num.encodings)
   
-  print(mat)
-  cat(dir,'\n')
-  cat(rhs,'\n')
+  #print(mat)
+  #cat(dir,'\n')
+  #cat(rhs,'\n')
   
   # Parity is still an issue, so that needs to be fixed next.
   lambda <- 1
@@ -105,47 +105,48 @@ Dynamo <- function(testtable, numEnc, numTask, userNumEncodings) {
   if (numEnc <= numTask) {
     # transpose matrix
     rankedJsonMatrix = matrix(unlist(testtable), nrow=numTask, ncol=numEnc)
-    print(rankedJsonMatrix)
+    #print(rankedJsonMatrix)
     colNames <- rankedJsonMatrix[1,]
     colNames <- colNames[2:length(colNames)]
-    print(colNames)
+    #print(colNames)
     rowNames <- rankedJsonMatrix[,1]
     rowNames <- rowNames[2:length(rowNames)]
-    print(rowNames)
+    #print(rowNames)
     rankedJsonMatrix = matrix(as.numeric(rankedJsonMatrix[2:numTask,2:numEnc]), nrow=numEnc-1, ncol=numTask-1)
     
-    print(rankedJsonMatrix)
+    #print(rankedJsonMatrix)
     
     rownames(rankedJsonMatrix) <- colNames
     colnames(rankedJsonMatrix) <- rowNames
     
-    print(rankedJsonMatrix)
+    #print(rankedJsonMatrix)
     
     #userNumEncodings <- dim(as.data.frame(testtable))[1]-1;
     lpres <- linprog(t(rankedJsonMatrix))
     tmdata <- matrix(lpres$solution[1:length(rankedJsonMatrix)], nrow=numTask-1, ncol=numEnc-1)
     
-    print(tmdata)
+    #print(tmdata)
     
     colnames(tmdata) <- rownames(rankedJsonMatrix)
     rownames(tmdata) <- colnames(rankedJsonMatrix)
     tmdata <- t(tmdata)
     
-    print(tmdata)
-    write(toJSON(as.data.frame(tmdata)), jsonOutfile);
+    #print(tmdata)
+    #write(toJSON(as.data.frame(tmdata)), jsonOutfile);
     
     print("ran transpose")
+    print(lpres)
     
   } else {
     # run as is
     rankedJsonMatrix = t(matrix(unlist(testtable), nrow=numTask, ncol=numEnc))
-    print(rankedJsonMatrix)
+    #print(rankedJsonMatrix)
     colNames <- rankedJsonMatrix[1,]
     colNames <- colNames[2:length(colNames)]
-    print(colNames)
+    #print(colNames)
     rowNames <- rankedJsonMatrix[,1]
     rowNames <- rowNames[2:length(rowNames)]
-    print(rowNames)
+    #print(rowNames)
     rankedJsonMatrix = matrix(as.numeric(rankedJsonMatrix[2:numEnc,2:numTask]), nrow=numEnc-1, ncol=numTask-1)
     
     colnames(rankedJsonMatrix) <- colNames
@@ -153,7 +154,7 @@ Dynamo <- function(testtable, numEnc, numTask, userNumEncodings) {
     
     length(rankedJsonMatrix)
     
-    print(rankedJsonMatrix)
+    #print(rankedJsonMatrix)
     
     #userNumEncodings <- dim(as.data.frame(testtable))[1]-1;
     lpres <- linprog(rankedJsonMatrix)
@@ -162,10 +163,11 @@ Dynamo <- function(testtable, numEnc, numTask, userNumEncodings) {
     colnames(tmdata) <- colnames(rankedJsonMatrix)
     rownames(tmdata) <- rownames(rankedJsonMatrix)
     
-    print(as.data.frame(tmdata))
+    #print(as.data.frame(tmdata))
     
-    write(toJSON(as.data.frame(tmdata)), jsonOutfile);
+    #write(toJSON(as.data.frame(tmdata)), jsonOutfile);
     print("ran as is")
+    print(lpres)
   }
 
 }
