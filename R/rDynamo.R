@@ -179,7 +179,7 @@ Dynamo <- function(testtable, numEnc, numTask, userNumEncodings) {
 #'
 #' This function supports conversion of colors from the HSV scale to Hex scale. This function is a data.frame specific helper (wrapper) function that uses the built-in hsv function under the hood.
 #' @param takes a row number (of the data frame that contains Hue, Saturation, and Value in columns 6, 7, and 8 respectively) as input.
-#' @keywords color, hex, hsv
+#' @keywords graphObject, synMat
 #' @export
 #' @examples
 #' renderGraph()
