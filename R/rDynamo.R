@@ -4,6 +4,7 @@ args = commandArgs(trailingOnly=TRUE);
 library(RJSONIO)
 library(Rsymphony)
 library(plyr)
+library(igraph)
 
 #' Linprog Function
 #'
@@ -171,6 +172,56 @@ Dynamo <- function(testtable, numEnc, numTask, userNumEncodings) {
   }
 
 }
+
+
+
+#' Renders network given an iGraph Object and preference matrix
+#'
+#' This function supports conversion of colors from the HSV scale to Hex scale. This function is a data.frame specific helper (wrapper) function that uses the built-in hsv function under the hood.
+#' @param takes a row number (of the data frame that contains Hue, Saturation, and Value in columns 6, 7, and 8 respectively) as input.
+#' @keywords color, hex, hsv
+#' @export
+#' @examples
+#' renderGraph()
+renderGraph <- function(graphObject, synMat) {
+  lpres <- linprog(t(synMat))
+  # if normal
+  if (dim(synMat)[1] < dim(synMat)[2]) {
+    assignedPairs <- which(matrix(as.logical(lpres$solution[1:(length(lpres$solution)-2)]), length(vertex_attr_names(graphObject)), length(encodingOptions)) == T, arr.ind = T)
+    llp <- list()
+    for (p in as.list(as.data.frame(assignedPairs)) ) {
+      cat(rownames(synMat)[p[1]], colnames(synMat)[p[2]], '\n')
+      if (colnames(synMat)[p[2]] == "vertex.shape") {
+        llp[[colnames(synMat)[p[2]]]] = unlist(lapply(vertex_attr(graphObject, rownames(synMat)[p[1]]), function(x) avail.shapes[((x%%length(avail.shapes))+1)]))
+      }
+      else {
+        llp[[colnames(synMat)[p[2]]]] = vertex_attr(graphObject, rownames(synMat)[p[1]])
+      }
+    }
+  }
+  else {
+    # if transposed
+    assignedPairs <- which(matrix(as.logical(lpres$solution[1:(length(lpres$solution)-2)]), length(encodingOptions)), length(vertex_attr_names(graphObject)) == T, arr.ind = T)
+    llp <- list()
+    for (p in as.list(as.data.frame(assignedPairs)) ) {
+      cat(rownames(synMat)[p[1]], colnames(synMat)[p[2]], '\n')
+      if (rownames(synMat)[p[1]] == "vertex.shape") {
+        llp[[rownames(synMat)[p[1]]]] = unlist(lapply(vertex_attr(graphObject, colnames(synMat)[p[2]]), function(x) avail.shapes[((x%%length(avail.shapes))+1)]))
+        #(function(x) avail.shapes[((x%%length(avail.shapes))+1)])(vertex_attr(g, colnames(synMat)[p[2]]))
+      }
+      else {
+        llp[[rownames(synMat)[p[1]]]] = vertex_attr(graphObject, colnames(synMat)[p[2]])
+      }
+    }
+  }
+  
+  llp[['x']] = graphObject
+  do.call("plot", llp)
+}
+
+
+
+
 
 # setwd("./rDynamo")
 # document()
